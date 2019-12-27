@@ -1,4 +1,4 @@
-package com.gfstabile.java.companyrest.repository.impl;
+package com.gfstabile.java.companyrest.repository;
 
 import com.gfstabile.java.companyrest.entity.category.Category;
 import org.springframework.data.jpa.repository.JpaRepository;

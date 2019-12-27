@@ -1,9 +1,12 @@
 package com.gfstabile.java.companyrest.entity.company;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gfstabile.java.companyrest.entity.category.Category;
 import com.gfstabile.java.companyrest.entity.country.Country;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -33,9 +37,12 @@ import java.util.Objects;
 @Table(name = "companies")
 @Getter
 @Setter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class Company {
+@AllArgsConstructor
+@JsonDeserialize(builder = Company.CompanyBuilder.class)
+public class Company implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "company_id")
@@ -54,6 +61,26 @@ public class Company {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    /**
+     * Validates if the company's attributes are valid.
+     * <p>
+     * It is considered valid when the {@link Company#id} is not null,
+     * {@link Company#internalCode} is not blank and
+     * {@link Company#name} is not blank and
+     * {@link Company#country} is not null and
+     * {@link Company#category} is not null and
+     * {@link Company#category#isValid()} is true
+     * </p>
+     *
+     * @return {@code true} if is valid; otherwise {@code false}
+     */
+    @JsonIgnore
+    @Transient
+    public boolean isValid() {
+        return Objects.nonNull(id) && Strings.isNotBlank(internalCode) && Strings.isNotBlank(name) &&
+            Objects.nonNull(country) && Objects.nonNull(category) && category.isValid();
+    }
 
     @Override
     public String toString() {
@@ -87,9 +114,7 @@ public class Company {
         }
         stringBuilder.append(", \"category\": ");
         if (Objects.nonNull(category)) {
-            stringBuilder.append(quotes)
-                .append(category.toString())
-                .append(quotes);
+            stringBuilder.append(category.toString());
         } else {
             stringBuilder.append("null");
         }
@@ -97,23 +122,30 @@ public class Company {
         return stringBuilder.toString();
     }
 
-    /**
-     * Validates if the company's attributes are valid.
-     * <p>
-     * It is considered valid when the {@link Company#id} is not null,
-     * {@link Company#internalCode} is not blank and
-     * {@link Company#name} is not blank and
-     * {@link Company#country} is not null and
-     * {@link Company#category} is not null and
-     * {@link Company#category#isValid()} is true
-     * </p>
-     *
-     * @return {@code true} if is valid; otherwise {@code false}
-     */
-    @JsonIgnore
-    @Transient
-    public boolean isValid() {
-        return Objects.nonNull(id) && Strings.isNotBlank(internalCode) && Strings.isNotBlank(name) &&
-            Objects.nonNull(country) && Objects.nonNull(category) && category.isValid();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Company company = (Company) o;
+        return Objects.equals(id, company.id) && Objects.equals(internalCode, company.internalCode) &&
+            Objects.equals(name, company.name) && Objects.equals(country, company.country) &&
+            Objects.equals(category, company.category);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.nonNull(id) ? id.hashCode() : 1;
+        result = 31 * result + (Objects.nonNull(internalCode) ? internalCode.hashCode() : 0);
+        result = 31 * result + (Objects.nonNull(name) ? name.hashCode() : 0);
+        result = 31 * result + (Objects.nonNull(country) ? country.hashCode() : 0);
+        result = 31 * result + (Objects.nonNull(category) ? category.hashCode() : 0);
+        return result;
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class CompanyBuilder {
+
     }
 }

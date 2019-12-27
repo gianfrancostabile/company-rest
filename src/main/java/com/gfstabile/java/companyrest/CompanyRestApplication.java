@@ -1,6 +1,7 @@
 package com.gfstabile.java.companyrest;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author G. F. Stabile
  */
 @SpringBootApplication
+@EnableAutoConfiguration
 public class CompanyRestApplication {
 
     public static void main(String[] args) {

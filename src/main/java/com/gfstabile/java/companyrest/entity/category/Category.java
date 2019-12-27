@@ -1,7 +1,10 @@
 package com.gfstabile.java.companyrest.entity.category;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -25,9 +29,11 @@ import java.util.Objects;
 @Table(name = "categories")
 @Getter
 @Setter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class Category {
+@AllArgsConstructor
+@JsonDeserialize(builder = Category.CategoryBuilder.class)
+public class Category implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,6 +45,22 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
+
+    /**
+     * Validates if the category's attributes are valid.
+     * <p>
+     * It is considered valid when the {@link Category#id} is not null,
+     * {@link Category#internalCode} is not blank and
+     * {@link Category#name} is not blank
+     * </p>
+     *
+     * @return {@code true} if is valid; otherwise {@code false}
+     */
+    @JsonIgnore
+    @Transient
+    public boolean isValid() {
+        return Objects.nonNull(id) && Strings.isNotBlank(internalCode) && Strings.isNotBlank(name);
+    }
 
     @Override
     public String toString() {
@@ -66,19 +88,28 @@ public class Category {
         return stringBuilder.toString();
     }
 
-    /**
-     * Validates if the category's attributes are valid.
-     * <p>
-     * It is considered valid when the {@link Category#id} is not null,
-     * {@link Category#internalCode} is not blank and
-     * {@link Category#name} is not blank
-     * </p>
-     *
-     * @return {@code true} if is valid; otherwise {@code false}
-     */
-    @JsonIgnore
-    @Transient
-    public boolean isValid() {
-        return Objects.nonNull(id) && Strings.isNotBlank(internalCode) && Strings.isNotBlank(name);
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (Objects.isNull(object) || getClass() != object.getClass())
+            return false;
+
+        Category category = (Category) object;
+        return Objects.equals(id, category.id) && Objects.equals(internalCode, category.internalCode) &&
+            Objects.equals(name, category.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.nonNull(id) ? id.hashCode() : 1;
+        result = 31 * result + (Objects.nonNull(internalCode) ? internalCode.hashCode() : 0);
+        result = 31 * result + (Objects.nonNull(name) ? name.hashCode() : 0);
+        return result;
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class CategoryBuilder {
+
     }
 }

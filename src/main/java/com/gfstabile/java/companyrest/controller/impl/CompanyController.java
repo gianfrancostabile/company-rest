@@ -4,6 +4,7 @@ import com.gfstabile.java.companyrest.controller.IController;
 import com.gfstabile.java.companyrest.entity.category.Category;
 import com.gfstabile.java.companyrest.entity.company.Company;
 import com.gfstabile.java.companyrest.entity.company.CompanyDTO;
+import com.gfstabile.java.companyrest.exception.AbstractServiceException;
 import com.gfstabile.java.companyrest.mapper.impl.CompanyMapper;
 import com.gfstabile.java.companyrest.service.impl.CategoryService;
 import com.gfstabile.java.companyrest.service.impl.CompanyService;
@@ -19,6 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * The controller bean related to Company entity
+ *
+ * @author G. F. Stabile
+ */
 @RestController
 @RequestMapping("/company")
 public class CompanyController implements IController<CompanyDTO> {
@@ -33,7 +39,7 @@ public class CompanyController implements IController<CompanyDTO> {
     private CompanyMapper companyMapper;
 
     @Override
-    public ResponseEntity<Void> save(@Valid CompanyDTO companyDTO) {
+    public ResponseEntity<Void> save(@Valid CompanyDTO companyDTO) throws AbstractServiceException {
         HttpStatus responseCode = HttpStatus.BAD_REQUEST;
         Optional<Category> optionalCategory =
             this.categoryService.getByInternalCode(companyDTO.getCategoryInternalCode());
@@ -47,7 +53,7 @@ public class CompanyController implements IController<CompanyDTO> {
     }
 
     @Override
-    public ResponseEntity<Void> update(@Valid CompanyDTO companyDTO) {
+    public ResponseEntity<Void> update(@Valid CompanyDTO companyDTO) throws AbstractServiceException {
         HttpStatus responseCode = HttpStatus.BAD_REQUEST;
         Optional<Category> optionalCategory =
             this.categoryService.getByInternalCode(companyDTO.getCategoryInternalCode());
@@ -61,7 +67,7 @@ public class CompanyController implements IController<CompanyDTO> {
     }
 
     @Override
-    public ResponseEntity<Void> deleteByInternalCode(@NotBlank String internalCode) {
+    public ResponseEntity<Void> deleteByInternalCode(@NotBlank String internalCode) throws AbstractServiceException {
         this.companyService.deleteByInternalCode(internalCode);
         HttpStatus responseCode = this.companyService.getByInternalCode(internalCode)
             .isPresent() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.NO_CONTENT;
@@ -73,14 +79,16 @@ public class CompanyController implements IController<CompanyDTO> {
         Optional<Company> optionalCompany = this.companyService.getByInternalCode(internalCode);
         return optionalCompany.map(
             company -> new ResponseEntity<>(this.companyMapper.fromEntityToDto(company), HttpStatus.OK))
-            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
     @Override
     public ResponseEntity<List<CompanyDTO>> getAll() {
         List<Company> companyResponse = this.companyService.getAll();
-        return new ResponseEntity<>(companyResponse.stream()
+        List<CompanyDTO> companyDTOList = companyResponse.stream()
             .map(this.companyMapper::fromEntityToDto)
-            .collect(Collectors.toList()), HttpStatus.OK);
+            .collect(Collectors.toList());
+        HttpStatus responseStatusCode = companyDTOList.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(companyDTOList, responseStatusCode);
     }
 }

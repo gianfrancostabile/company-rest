@@ -1,5 +1,7 @@
 package com.gfstabile.java.companyrest.service;
 
+import com.gfstabile.java.companyrest.exception.AbstractServiceException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -16,21 +18,21 @@ public interface IService<T> {
      *
      * @param entity the instance to insert
      */
-    void save(T entity);
+    void save(T entity) throws AbstractServiceException;
 
     /**
      * Updates the entity into the database
      *
      * @param entity the instance to update
      */
-    void update(T entity);
+    void update(T entity) throws AbstractServiceException;
 
     /**
      * Deletes a row registry from database by the internal code
      *
      * @param internalCode the entity internal code
      */
-    void deleteByInternalCode(String internalCode);
+    void deleteByInternalCode(String internalCode) throws AbstractServiceException;
 
     /**
      * Returns an optional instance with the entity information

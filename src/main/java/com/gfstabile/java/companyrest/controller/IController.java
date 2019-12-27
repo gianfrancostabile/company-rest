@@ -1,5 +1,6 @@
 package com.gfstabile.java.companyrest.controller;
 
+import com.gfstabile.java.companyrest.exception.AbstractServiceException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,13 +23,14 @@ import java.util.List;
  */
 public interface IController<T> {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Void> save(@RequestBody @Valid T dto);
+    ResponseEntity<Void> save(@RequestBody @Valid T dto) throws AbstractServiceException;
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Void> update(@RequestBody @Valid T dto);
+    ResponseEntity<Void> update(@RequestBody @Valid T dto) throws AbstractServiceException;
 
     @DeleteMapping("/{internalCode}")
-    ResponseEntity<Void> deleteByInternalCode(@PathVariable @NotBlank String internalCode);
+    ResponseEntity<Void> deleteByInternalCode(@PathVariable @NotBlank String internalCode)
+        throws AbstractServiceException;
 
     @GetMapping(value = "/{internalCode}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<T> getByInternalCode(@PathVariable @NotBlank String internalCode);

@@ -1,9 +1,16 @@
 package com.gfstabile.java.companyrest.service.impl;
 
 import com.gfstabile.java.companyrest.entity.category.Category;
-import com.gfstabile.java.companyrest.repository.impl.CategoryRepository;
+import com.gfstabile.java.companyrest.exception.AbstractServiceException;
+import com.gfstabile.java.companyrest.exception.impl.BlankInternalCodeException;
+import com.gfstabile.java.companyrest.exception.impl.DuplicatedInternalCodeException;
+import com.gfstabile.java.companyrest.exception.impl.category.CategoryNotFoundException;
+import com.gfstabile.java.companyrest.exception.impl.category.InvalidCategoryException;
+import com.gfstabile.java.companyrest.exception.impl.category.NullCategoryException;
+import com.gfstabile.java.companyrest.repository.CategoryRepository;
 import com.gfstabile.java.companyrest.service.IService;
 import org.apache.logging.log4j.util.Strings;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,24 +30,41 @@ public class CategoryService implements IService<Category> {
     private CategoryRepository categoryRepository;
 
     @Override
-    public void save(Category category) {
-        if (Objects.nonNull(category) && category.isValid()) {
+    public void save(Category category) throws AbstractServiceException {
+        if (Objects.isNull(category)) {
+            throw new NullCategoryException();
+        } else if (!category.isValid()) {
+            throw new InvalidCategoryException();
+        }
+        try {
             this.categoryRepository.save(category);
+        } catch (ConstraintViolationException exception) {
+            throw new DuplicatedInternalCodeException();
         }
     }
 
     @Override
-    public void update(Category category) {
-        if (Objects.nonNull(category) && category.isValid()) {
-            this.categoryRepository.updateCategory(category.getInternalCode(), category.getName());
+    public void update(Category category) throws AbstractServiceException {
+        if (Objects.isNull(category)) {
+            throw new NullCategoryException();
+        } else if (!category.isValid()) {
+            throw new InvalidCategoryException();
+        } else if (!this.categoryRepository.findByInternalCode(category.getInternalCode())
+            .isPresent()) {
+            throw new CategoryNotFoundException();
         }
+        this.categoryRepository.updateCategory(category.getInternalCode(), category.getName());
     }
 
     @Override
-    public void deleteByInternalCode(String internalCode) {
-        if (Strings.isNotBlank(internalCode)) {
-            this.categoryRepository.deleteByInternalCode(internalCode);
+    public void deleteByInternalCode(String internalCode) throws AbstractServiceException {
+        if (Strings.isBlank(internalCode)) {
+            throw new BlankInternalCodeException();
+        } else if (!this.categoryRepository.findByInternalCode(internalCode)
+            .isPresent()) {
+            throw new CategoryNotFoundException();
         }
+        this.categoryRepository.deleteByInternalCode(internalCode);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.gfstabile.java.companyrest.entity.category;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -15,9 +17,10 @@ import java.util.Objects;
  */
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class CategoryDTO {
+@Builder
+@JsonDeserialize(builder = CategoryDTO.CategoryDTOBuilder.class)
+public class CategoryDTO implements Serializable {
+
     @NotBlank(message = "InternalCode cannot be null or empty")
     private String internalCode;
 
@@ -46,5 +49,28 @@ public class CategoryDTO {
         }
         stringBuilder.append('}');
         return stringBuilder.toString();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (Objects.isNull(object) || getClass() != object.getClass())
+            return false;
+
+        CategoryDTO categoryDTO = (CategoryDTO) object;
+        return Objects.equals(internalCode, categoryDTO.internalCode) && Objects.equals(name, categoryDTO.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.nonNull(internalCode) ? internalCode.hashCode() : 0;
+        result = 31 * result + (Objects.nonNull(name) ? name.hashCode() : 0);
+        return result;
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class CategoryDTOBuilder {
+
     }
 }
