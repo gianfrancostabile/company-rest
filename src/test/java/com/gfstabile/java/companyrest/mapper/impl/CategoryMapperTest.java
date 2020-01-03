@@ -9,123 +9,84 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CategoryMapperTest {
 
-    private static final Long ID = 1L;
+    private static final Long ID = 0L;
     private static final String INTERNAL_CODE = "1";
     private static final String NAME = "Name";
+
     private CategoryMapper categoryMapper;
+
+    private Category dummyCategory;
+    private CategoryDTO dummyCategoryDTO;
 
     @BeforeEach
     public void setUp() {
         this.categoryMapper = new CategoryMapper();
-    }
-
-    @Test
-    public void fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategory() {
-        Category dummyCategory = Category.builder()
+        this.dummyCategory = Category.builder()
             .id(ID)
             .internalCode(INTERNAL_CODE)
             .name(NAME)
             .build();
-        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(dummyCategory);
-        CategoryDTO expectedCategoryDTO = CategoryDTO.builder()
+        this.dummyCategoryDTO = CategoryDTO.builder()
             .internalCode(INTERNAL_CODE)
             .name(NAME)
             .build();
+    }
 
-        assertEquals(expectedCategoryDTO, actualCategoryDTO,
+    @Test
+    public void fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategory() {
+        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(this.dummyCategory);
+        assertEquals(this.dummyCategoryDTO, actualCategoryDTO,
             "fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategory");
     }
 
     @Test
     public void fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithIdNull() {
-        Category dummyCategory = Category.builder()
-            .internalCode(INTERNAL_CODE)
-            .name(NAME)
-            .build();
-        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(dummyCategory);
-        CategoryDTO expectedCategoryDTO = CategoryDTO.builder()
-            .internalCode(INTERNAL_CODE)
-            .name(NAME)
-            .build();
-
-        assertEquals(expectedCategoryDTO, actualCategoryDTO,
+        this.dummyCategory.setId(null);
+        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(this.dummyCategory);
+        assertEquals(this.dummyCategoryDTO, actualCategoryDTO,
             "fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithIdNull");
     }
 
     @Test
     public void fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithInternalCodeNull() {
-        Category dummyCategory = Category.builder()
-            .id(ID)
-            .name(NAME)
-            .build();
-        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(dummyCategory);
-        CategoryDTO expectedCategoryDTO = CategoryDTO.builder()
-            .name(NAME)
-            .build();
-
-        assertEquals(expectedCategoryDTO, actualCategoryDTO,
+        this.dummyCategory.setInternalCode(null);
+        this.dummyCategoryDTO.setInternalCode(null);
+        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(this.dummyCategory);
+        assertEquals(this.dummyCategoryDTO, actualCategoryDTO,
             "fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithInternalCodeNull");
     }
 
     @Test
     public void fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithNameNull() {
-        Category dummyCategory = Category.builder()
-            .id(ID)
-            .internalCode(INTERNAL_CODE)
-            .build();
-        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(dummyCategory);
-        CategoryDTO expectedCategoryDTO = CategoryDTO.builder()
-            .internalCode(INTERNAL_CODE)
-            .build();
-
-        assertEquals(expectedCategoryDTO, actualCategoryDTO,
+        this.dummyCategory.setName(null);
+        this.dummyCategoryDTO.setName(null);
+        CategoryDTO actualCategoryDTO = this.categoryMapper.fromEntityToDto(this.dummyCategory);
+        assertEquals(this.dummyCategoryDTO, actualCategoryDTO,
             "fromEntityToDto_ReturnsCategoryDTOWithSameInternalCodeAndName_SendCategoryWithNameNull");
     }
 
     @Test
     public void fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategoryDTO() {
-        CategoryDTO dummyCategoryDTO = CategoryDTO.builder()
-            .internalCode(INTERNAL_CODE)
-            .name(NAME)
-            .build();
-        Category actualCategory = this.categoryMapper.fromDtoToEntity(dummyCategoryDTO);
-        Category expectedCategory = Category.builder()
-            .id(0L)
-            .internalCode(INTERNAL_CODE)
-            .name(NAME)
-            .build();
-
-        assertEquals(actualCategory, expectedCategory,
+        Category actualCategory = this.categoryMapper.fromDtoToEntity(this.dummyCategoryDTO);
+        assertEquals(this.dummyCategory, actualCategory,
             "fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategory");
     }
 
     @Test
     public void fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategoryWithInternalCodeNull() {
-        CategoryDTO dummyCategoryDTO = CategoryDTO.builder()
-            .name(NAME)
-            .build();
-        Category actualCategory = this.categoryMapper.fromDtoToEntity(dummyCategoryDTO);
-        Category expectedCategory = Category.builder()
-            .id(0L)
-            .name(NAME)
-            .build();
-
-        assertEquals(actualCategory, expectedCategory,
+        this.dummyCategoryDTO.setInternalCode(null);
+        this.dummyCategory.setInternalCode(null);
+        Category actualCategory = this.categoryMapper.fromDtoToEntity(this.dummyCategoryDTO);
+        assertEquals(this.dummyCategory, actualCategory,
             "fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategoryWithInternalCodeNull");
     }
 
     @Test
     public void fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategoryWithNameNull() {
-        CategoryDTO dummyCategoryDTO = CategoryDTO.builder()
-            .internalCode(INTERNAL_CODE)
-            .build();
-        Category actualCategory = this.categoryMapper.fromDtoToEntity(dummyCategoryDTO);
-        Category expectedCategory = Category.builder()
-            .id(0L)
-            .internalCode(INTERNAL_CODE)
-            .build();
-
-        assertEquals(actualCategory, expectedCategory,
+        this.dummyCategoryDTO.setName(null);
+        this.dummyCategory.setName(null);
+        Category actualCategory = this.categoryMapper.fromDtoToEntity(this.dummyCategoryDTO);
+        assertEquals(this.dummyCategory, actualCategory,
             "fromDtoToEntity_ReturnsCategoryWithId0LAndSameInternalCodeAndName_SendCategoryWithNameNull");
     }
 }

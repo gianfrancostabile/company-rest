@@ -38,7 +38,7 @@ public class CategoryService implements IService<Category> {
         }
         try {
             this.categoryRepository.save(category);
-        } catch (ConstraintViolationException exception) {
+        } catch (Exception exception) {
             throw new DuplicatedInternalCodeException();
         }
     }

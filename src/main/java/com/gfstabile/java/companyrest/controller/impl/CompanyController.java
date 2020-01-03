@@ -3,7 +3,8 @@ package com.gfstabile.java.companyrest.controller.impl;
 import com.gfstabile.java.companyrest.controller.IController;
 import com.gfstabile.java.companyrest.entity.category.Category;
 import com.gfstabile.java.companyrest.entity.company.Company;
-import com.gfstabile.java.companyrest.entity.company.CompanyDTO;
+import com.gfstabile.java.companyrest.entity.company.CompanyRequestDTO;
+import com.gfstabile.java.companyrest.entity.company.CompanyResponseDTO;
 import com.gfstabile.java.companyrest.exception.AbstractServiceException;
 import com.gfstabile.java.companyrest.mapper.impl.CompanyMapper;
 import com.gfstabile.java.companyrest.service.impl.CategoryService;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/company")
-public class CompanyController implements IController<CompanyDTO> {
+public class CompanyController implements IController<CompanyRequestDTO, CompanyResponseDTO> {
 
     @Autowired
     private CategoryService categoryService;
@@ -39,12 +40,12 @@ public class CompanyController implements IController<CompanyDTO> {
     private CompanyMapper companyMapper;
 
     @Override
-    public ResponseEntity<Void> save(@Valid CompanyDTO companyDTO) throws AbstractServiceException {
+    public ResponseEntity<Void> save(@Valid CompanyRequestDTO companyRequestDTO) throws AbstractServiceException {
         HttpStatus responseCode = HttpStatus.BAD_REQUEST;
         Optional<Category> optionalCategory =
-            this.categoryService.getByInternalCode(companyDTO.getCategoryInternalCode());
+            this.categoryService.getByInternalCode(companyRequestDTO.getCategoryInternalCode());
         if (optionalCategory.isPresent()) {
-            Company company = this.companyMapper.fromDtoToEntity(companyDTO);
+            Company company = this.companyMapper.fromDtoToEntity(companyRequestDTO);
             company.setCategory(optionalCategory.get());
             this.companyService.save(company);
             responseCode = HttpStatus.CREATED;
@@ -53,12 +54,12 @@ public class CompanyController implements IController<CompanyDTO> {
     }
 
     @Override
-    public ResponseEntity<Void> update(@Valid CompanyDTO companyDTO) throws AbstractServiceException {
+    public ResponseEntity<Void> update(@Valid CompanyRequestDTO companyRequestDTO) throws AbstractServiceException {
         HttpStatus responseCode = HttpStatus.BAD_REQUEST;
         Optional<Category> optionalCategory =
-            this.categoryService.getByInternalCode(companyDTO.getCategoryInternalCode());
+            this.categoryService.getByInternalCode(companyRequestDTO.getCategoryInternalCode());
         if (optionalCategory.isPresent()) {
-            Company company = this.companyMapper.fromDtoToEntity(companyDTO);
+            Company company = this.companyMapper.fromDtoToEntity(companyRequestDTO);
             company.setCategory(optionalCategory.get());
             this.companyService.update(company);
             responseCode = HttpStatus.NO_CONTENT;
@@ -75,20 +76,20 @@ public class CompanyController implements IController<CompanyDTO> {
     }
 
     @Override
-    public ResponseEntity<CompanyDTO> getByInternalCode(@NotBlank String internalCode) {
+    public ResponseEntity<CompanyResponseDTO> getByInternalCode(@NotBlank String internalCode) {
         Optional<Company> optionalCompany = this.companyService.getByInternalCode(internalCode);
         return optionalCompany.map(
-            company -> new ResponseEntity<>(this.companyMapper.fromEntityToDto(company), HttpStatus.OK))
+            company -> new ResponseEntity<>(this.companyMapper.fromEntityToResponseDto(company), HttpStatus.OK))
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
     @Override
-    public ResponseEntity<List<CompanyDTO>> getAll() {
+    public ResponseEntity<List<CompanyResponseDTO>> getAll() {
         List<Company> companyResponse = this.companyService.getAll();
-        List<CompanyDTO> companyDTOList = companyResponse.stream()
-            .map(this.companyMapper::fromEntityToDto)
+        List<CompanyResponseDTO> companyRequestDTOList = companyResponse.stream()
+            .map(this.companyMapper::fromEntityToResponseDto)
             .collect(Collectors.toList());
-        HttpStatus responseStatusCode = companyDTOList.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-        return new ResponseEntity<>(companyDTOList, responseStatusCode);
+        HttpStatus responseStatusCode = companyRequestDTOList.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(companyRequestDTOList, responseStatusCode);
     }
 }

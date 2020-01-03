@@ -2,8 +2,10 @@ package com.gfstabile.java.companyrest.mapper.impl;
 
 import com.gfstabile.java.companyrest.entity.category.Category;
 import com.gfstabile.java.companyrest.entity.company.Company;
-import com.gfstabile.java.companyrest.entity.company.CompanyDTO;
-import com.gfstabile.java.companyrest.mapper.IMapper;
+import com.gfstabile.java.companyrest.entity.company.CompanyRequestDTO;
+import com.gfstabile.java.companyrest.entity.company.CompanyResponseDTO;
+import com.gfstabile.java.companyrest.mapper.IResponseMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -14,26 +16,29 @@ import java.util.Objects;
  * @author G. F. Stabile
  */
 @Component
-public class CompanyMapper implements IMapper<Company, CompanyDTO> {
+public class CompanyMapper implements IResponseMapper<Company, CompanyRequestDTO, CompanyResponseDTO> {
+
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @Override
-    public CompanyDTO fromEntityToDto(Company entity) {
-        CompanyDTO companyDTO = null;
+    public CompanyRequestDTO fromEntityToDto(Company entity) {
+        CompanyRequestDTO companyRequestDTO = null;
         if (Objects.nonNull(entity)) {
             String categoryInternalCode = Objects.nonNull(entity.getCategory()) ? entity.getCategory()
                 .getInternalCode() : null;
-            companyDTO = CompanyDTO.builder()
+            companyRequestDTO = CompanyRequestDTO.builder()
                 .internalCode(entity.getInternalCode())
                 .name(entity.getName())
                 .country(entity.getCountry())
                 .categoryInternalCode(categoryInternalCode)
                 .build();
         }
-        return companyDTO;
+        return companyRequestDTO;
     }
 
     @Override
-    public Company fromDtoToEntity(CompanyDTO dto) {
+    public Company fromDtoToEntity(CompanyRequestDTO dto) {
         Company company = null;
         if (Objects.nonNull(dto)) {
             Category category = Objects.nonNull(dto.getCategoryInternalCode()) ? Category.builder()
@@ -48,5 +53,15 @@ public class CompanyMapper implements IMapper<Company, CompanyDTO> {
                 .build();
         }
         return company;
+    }
+
+    @Override
+    public CompanyResponseDTO fromEntityToResponseDto(Company entity) {
+        return Objects.nonNull(entity) ? CompanyResponseDTO.builder()
+            .internalCode(entity.getInternalCode())
+            .name(entity.getName())
+            .country(entity.getCountry())
+            .categoryDTO(this.categoryMapper.fromEntityToDto(entity.getCategory()))
+            .build() : null;
     }
 }

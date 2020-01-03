@@ -38,7 +38,7 @@ public class CompanyService implements IService<Company> {
         }
         try {
             this.companyRepository.save(company);
-        } catch (ConstraintViolationException exception) {
+        } catch (Exception exception) {
             throw new DuplicatedInternalCodeException();
         }
     }

@@ -1,8 +1,10 @@
 package com.gfstabile.java.companyrest.controller.impl;
 
 import com.gfstabile.java.companyrest.entity.category.Category;
+import com.gfstabile.java.companyrest.entity.category.CategoryDTO;
 import com.gfstabile.java.companyrest.entity.company.Company;
-import com.gfstabile.java.companyrest.entity.company.CompanyDTO;
+import com.gfstabile.java.companyrest.entity.company.CompanyRequestDTO;
+import com.gfstabile.java.companyrest.entity.company.CompanyResponseDTO;
 import com.gfstabile.java.companyrest.entity.country.Country;
 import com.gfstabile.java.companyrest.exception.impl.DuplicatedInternalCodeException;
 import com.gfstabile.java.companyrest.exception.impl.company.CompanyNotFoundException;
@@ -26,6 +28,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -51,13 +54,13 @@ public class CompanyControllerTest {
 
     @BeforeEach
     public void setUp() {
-        Mockito.when(this.companyMapper.fromDtoToEntity(this.getDummyCompanyDTO()))
+        when(this.companyMapper.fromDtoToEntity(this.getDummyCompanyDTO()))
             .thenReturn(this.getDummyCompany());
-        Mockito.when(this.companyMapper.fromEntityToDto(this.getDummyCompany()))
+        when(this.companyMapper.fromEntityToDto(this.getDummyCompany()))
             .thenReturn(this.getDummyCompanyDTO());
-        Mockito.when(this.categoryService.getByInternalCode("1"))
+        when(this.categoryService.getByInternalCode("1"))
             .thenReturn(Optional.of(this.getDummyCategory()));
-        Mockito.when(this.categoryService.getByInternalCode("empty"))
+        when(this.categoryService.getByInternalCode("empty"))
             .thenReturn(Optional.empty());
     }
 
@@ -87,24 +90,23 @@ public class CompanyControllerTest {
 
     @Test
     public void save_SendNonExistingCategoryInternalCode_Return400StatusCode() throws Exception {
-        CompanyDTO dummyCompanyDTO = this.getDummyCompanyDTO();
-        dummyCompanyDTO.setCategoryInternalCode("empty");
-        Mockito.when(this.categoryService.getByInternalCode(anyString()))
-            .thenReturn(Optional.empty());
+        CompanyRequestDTO dummyCompanyRequestDTO = this.getDummyCompanyDTO();
+        dummyCompanyRequestDTO.setCategoryInternalCode("empty");
+        when(this.categoryService.getByInternalCode(anyString())).thenReturn(Optional.empty());
 
         this.mockMvc.perform(post(URI_PREFIX).contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(dummyCompanyDTO.toString()))
+            .content(dummyCompanyRequestDTO.toString()))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     public void save_SendInvalidCompanyDTO_ReturnErrorListAnd400StatusCode() throws Exception {
-        CompanyDTO dummyInvalidCompanyDTO = this.getDummyCompanyDTO();
-        dummyInvalidCompanyDTO.setCategoryInternalCode(null);
-        dummyInvalidCompanyDTO.setInternalCode("");
+        CompanyRequestDTO dummyInvalidCompanyRequestDTO = this.getDummyCompanyDTO();
+        dummyInvalidCompanyRequestDTO.setCategoryInternalCode(null);
+        dummyInvalidCompanyRequestDTO.setInternalCode("");
 
         this.mockMvc.perform(post(URI_PREFIX).contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(dummyInvalidCompanyDTO.toString()))
+            .content(dummyInvalidCompanyRequestDTO.toString()))
             .andExpect(status().isBadRequest())
             .andExpect(content().json(
                 "{\"errors\":[\"CategoryInternalCode cannot be null or empty\",\"InternalCode cannot be null or empty\"]}"));
@@ -153,24 +155,23 @@ public class CompanyControllerTest {
 
     @Test
     public void update_SendNonExistingCategoryInternalCode_Return400StatusCode() throws Exception {
-        CompanyDTO dummyCompanyDTO = this.getDummyCompanyDTO();
-        dummyCompanyDTO.setCategoryInternalCode("empty");
-        Mockito.when(this.categoryService.getByInternalCode(anyString()))
-            .thenReturn(Optional.empty());
+        CompanyRequestDTO dummyCompanyRequestDTO = this.getDummyCompanyDTO();
+        dummyCompanyRequestDTO.setCategoryInternalCode("empty");
+        when(this.categoryService.getByInternalCode(anyString())).thenReturn(Optional.empty());
 
         this.mockMvc.perform(put(URI_PREFIX).contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(dummyCompanyDTO.toString()))
+            .content(dummyCompanyRequestDTO.toString()))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     public void update_SendInvalidCompanyDTO_ReturnErrorListAnd400StatusCode() throws Exception {
-        CompanyDTO dummyInvalidCompanyDTO = this.getDummyCompanyDTO();
-        dummyInvalidCompanyDTO.setCategoryInternalCode(null);
-        dummyInvalidCompanyDTO.setInternalCode("");
+        CompanyRequestDTO dummyInvalidCompanyRequestDTO = this.getDummyCompanyDTO();
+        dummyInvalidCompanyRequestDTO.setCategoryInternalCode(null);
+        dummyInvalidCompanyRequestDTO.setInternalCode("");
 
         this.mockMvc.perform(put(URI_PREFIX).contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(dummyInvalidCompanyDTO.toString()))
+            .content(dummyInvalidCompanyRequestDTO.toString()))
             .andExpect(status().isBadRequest())
             .andExpect(content().json(
                 "{\"errors\":[\"CategoryInternalCode cannot be null or empty\",\"InternalCode cannot be null or empty\"]}"));
@@ -198,7 +199,7 @@ public class CompanyControllerTest {
         Mockito.doNothing()
             .when(this.companyService)
             .deleteByInternalCode(anyString());
-        Mockito.when(this.companyService.getByInternalCode(anyString()))
+        when(this.companyService.getByInternalCode(anyString()))
             .thenReturn(Optional.empty());
         this.mockMvc.perform(delete(URI_PREFIX_INTERNAL_CODE, "1"))
             .andExpect(status().isNoContent());
@@ -209,7 +210,7 @@ public class CompanyControllerTest {
         Mockito.doThrow(CompanyNotFoundException.class)
             .when(this.companyService)
             .deleteByInternalCode(anyString());
-        Mockito.when(this.companyService.getByInternalCode(anyString()))
+        when(this.companyService.getByInternalCode(anyString()))
             .thenReturn(Optional.empty());
         this.mockMvc.perform(delete(URI_PREFIX_INTERNAL_CODE, "2"))
             .andExpect(status().isBadRequest());
@@ -220,7 +221,7 @@ public class CompanyControllerTest {
         Mockito.doNothing()
             .when(this.companyService)
             .deleteByInternalCode(anyString());
-        Mockito.when(this.companyService.getByInternalCode(anyString()))
+        when(this.companyService.getByInternalCode(anyString()))
             .thenReturn(Optional.of(Company.builder()
                 .build()));
         this.mockMvc.perform(delete(URI_PREFIX_INTERNAL_CODE, "1"))
@@ -243,17 +244,27 @@ public class CompanyControllerTest {
 
     @Test
     public void getByInternalCode_SendExistingInternalCode_ReturnCompanyAnd200StatusCode() throws Exception {
-        Mockito.when(this.companyService.getByInternalCode(anyString()))
-            .thenReturn(Optional.of(this.getDummyCompany()));
+        CompanyResponseDTO companyResponseDTO = CompanyResponseDTO.builder()
+            .internalCode("1")
+            .name("Company Name")
+            .country(Country.AR)
+            .categoryDTO(CategoryDTO.builder()
+                .internalCode("1")
+                .name("Category Name")
+                .build())
+            .build();
+
+        when(this.companyService.getByInternalCode(anyString())).thenReturn(Optional.of(this.getDummyCompany()));
+        when(this.companyMapper.fromEntityToResponseDto(any(Company.class))).thenReturn(companyResponseDTO);
+
         this.mockMvc.perform(get(URI_PREFIX_INTERNAL_CODE, "1"))
             .andExpect(status().isOk())
-            .andExpect(content().json(
-                "{\"internalCode\":\"1\",\"name\":\"Company Name\",\"country\":\"AR\",\"categoryInternalCode\":\"1\"}"));
+            .andExpect(content().json(companyResponseDTO.toString()));
     }
 
     @Test
     public void getByInternalCode_SendNonExistingInternalCode_Return204StatusCode() throws Exception {
-        Mockito.when(this.companyService.getByInternalCode(anyString()))
+        when(this.companyService.getByInternalCode(anyString()))
             .thenReturn(Optional.empty());
         this.mockMvc.perform(get(URI_PREFIX_INTERNAL_CODE, "2"))
             .andExpect(status().isNoContent());
@@ -287,41 +298,42 @@ public class CompanyControllerTest {
         dummyCompanyList.add(dummyCompanyTwo);
         dummyCompanyList.add(dummyCompanyThree);
 
-        CompanyDTO dummyCompanyDTOOne = CompanyDTO.builder()
+        CategoryDTO categoryDTO = CategoryDTO.builder()
+            .internalCode("1")
+            .name("Category Name")
+            .build();
+
+        CompanyResponseDTO dummyCompanyResponseDTOOne = CompanyResponseDTO.builder()
             .internalCode("1")
             .name("1")
             .country(Country.AR)
-            .categoryInternalCode("1")
+            .categoryDTO(categoryDTO)
             .build();
-        CompanyDTO dummyCompanyDTOTwo = CompanyDTO.builder()
+        CompanyResponseDTO dummyCompanyResponseDTOTwo = CompanyResponseDTO.builder()
             .internalCode("2")
             .name("2")
             .country(Country.BR)
-            .categoryInternalCode("1")
+            .categoryDTO(categoryDTO)
             .build();
-        CompanyDTO dummyCompanyDTOThree = CompanyDTO.builder()
+        CompanyResponseDTO dummyCompanyResponseDTOThree = CompanyResponseDTO.builder()
             .internalCode("3")
             .name("3")
             .country(Country.US)
-            .categoryInternalCode("1")
+            .categoryDTO(categoryDTO)
             .build();
-        List<CompanyDTO> expectedCompanyDTOList = new ArrayList<>();
-        expectedCompanyDTOList.add(dummyCompanyDTOOne);
-        expectedCompanyDTOList.add(dummyCompanyDTOTwo);
-        expectedCompanyDTOList.add(dummyCompanyDTOThree);
+        List<CompanyResponseDTO> expectedCompanyResponseDTOList = new ArrayList<>();
+        expectedCompanyResponseDTOList.add(dummyCompanyResponseDTOOne);
+        expectedCompanyResponseDTOList.add(dummyCompanyResponseDTOTwo);
+        expectedCompanyResponseDTOList.add(dummyCompanyResponseDTOThree);
 
-        Mockito.when(this.companyService.getAll())
-            .thenReturn(dummyCompanyList);
-        Mockito.when(this.companyMapper.fromEntityToDto(dummyCompanyOne))
-            .thenReturn(dummyCompanyDTOOne);
-        Mockito.when(this.companyMapper.fromEntityToDto(dummyCompanyTwo))
-            .thenReturn(dummyCompanyDTOTwo);
-        Mockito.when(this.companyMapper.fromEntityToDto(dummyCompanyThree))
-            .thenReturn(dummyCompanyDTOThree);
+        when(this.companyService.getAll()).thenReturn(dummyCompanyList);
+        when(this.companyMapper.fromEntityToResponseDto(dummyCompanyOne)).thenReturn(dummyCompanyResponseDTOOne);
+        when(this.companyMapper.fromEntityToResponseDto(dummyCompanyTwo)).thenReturn(dummyCompanyResponseDTOTwo);
+        when(this.companyMapper.fromEntityToResponseDto(dummyCompanyThree)).thenReturn(dummyCompanyResponseDTOThree);
 
         this.mockMvc.perform(get(URI_PREFIX))
             .andExpect(status().isOk())
-            .andExpect(content().json(expectedCompanyDTOList.toString()));
+            .andExpect(content().json(expectedCompanyResponseDTOList.toString()));
     }
 
     @Test
@@ -336,35 +348,37 @@ public class CompanyControllerTest {
         List<Company> dummyCompanyList = new ArrayList<>();
         dummyCompanyList.add(dummyCompanyOne);
 
-        CompanyDTO dummyCompanyDTOOne = CompanyDTO.builder()
+        CompanyResponseDTO dummyCompanyResponseDTOOne = CompanyResponseDTO.builder()
             .internalCode("1")
             .name("1")
             .country(Country.AR)
-            .categoryInternalCode("1")
+            .categoryDTO(CategoryDTO.builder()
+                .internalCode("1")
+                .name("Category Name")
+                .build())
             .build();
-        List<CompanyDTO> expectedCompanyDTOList = new ArrayList<>();
-        expectedCompanyDTOList.add(dummyCompanyDTOOne);
+        List<CompanyResponseDTO> expectedCompanyResponseDTOList = new ArrayList<>();
+        expectedCompanyResponseDTOList.add(dummyCompanyResponseDTOOne);
 
-        Mockito.when(this.companyService.getAll())
-            .thenReturn(dummyCompanyList);
-        Mockito.when(this.companyMapper.fromEntityToDto(dummyCompanyOne))
-            .thenReturn(dummyCompanyDTOOne);
+        when(this.companyService.getAll()).thenReturn(dummyCompanyList);
+        when(this.companyMapper.fromEntityToResponseDto(dummyCompanyOne)).thenReturn(dummyCompanyResponseDTOOne);
 
         this.mockMvc.perform(get(URI_PREFIX))
             .andExpect(status().isOk())
-            .andExpect(content().json(expectedCompanyDTOList.toString()));
+            .andExpect(content().json(expectedCompanyResponseDTOList.toString()));
     }
 
     @Test
     public void getAll_ReturnEmptyListAnd204StatusCode() throws Exception {
         List<Company> dummyCompanyList = new ArrayList<>();
+        List<CompanyResponseDTO> expectedCompanyResponseDTOList = new ArrayList<>();
 
-        Mockito.when(this.companyService.getAll())
+        when(this.companyService.getAll())
             .thenReturn(dummyCompanyList);
 
         this.mockMvc.perform(get(URI_PREFIX))
             .andExpect(status().isNoContent())
-            .andExpect(content().json("[]"));
+            .andExpect(content().json(expectedCompanyResponseDTOList.toString()));
     }
 
     public Category getDummyCategory() {
@@ -375,8 +389,8 @@ public class CompanyControllerTest {
             .build();
     }
 
-    public CompanyDTO getDummyCompanyDTO() {
-        return CompanyDTO.builder()
+    public CompanyRequestDTO getDummyCompanyDTO() {
+        return CompanyRequestDTO.builder()
             .internalCode("1")
             .name("Company Name")
             .country(Country.AR)
@@ -391,7 +405,9 @@ public class CompanyControllerTest {
             .name("Company Name")
             .country(Country.AR)
             .category(Category.builder()
+                .id(0L)
                 .internalCode("1")
+                .name("Category Name")
                 .build())
             .build();
     }

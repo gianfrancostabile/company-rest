@@ -20,8 +20,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
-@JsonDeserialize(builder = CompanyDTO.CompanyDTOBuilder.class)
-public class CompanyDTO implements Serializable {
+@JsonDeserialize(builder = CompanyRequestDTO.CompanyRequestDTOBuilder.class)
+public class CompanyRequestDTO implements Serializable {
 
     @NotBlank(message = "InternalCode cannot be null or empty")
     private String internalCode;
@@ -82,10 +82,10 @@ public class CompanyDTO implements Serializable {
         if (Objects.isNull(object) || getClass() != object.getClass())
             return false;
 
-        CompanyDTO companyDTO = (CompanyDTO) object;
-        return Objects.equals(internalCode, companyDTO.internalCode) && Objects.equals(name, companyDTO.name) &&
-            Objects.equals(country, companyDTO.country) &&
-            Objects.equals(categoryInternalCode, companyDTO.categoryInternalCode);
+        CompanyRequestDTO companyRequestDTO = (CompanyRequestDTO) object;
+        return Objects.equals(internalCode, companyRequestDTO.internalCode) && Objects.equals(name, companyRequestDTO.name) &&
+            Objects.equals(country, companyRequestDTO.country) &&
+            Objects.equals(categoryInternalCode, companyRequestDTO.categoryInternalCode);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class CompanyDTO implements Serializable {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class CompanyDTOBuilder {
+    public static class CompanyRequestDTOBuilder {
 
     }
 }

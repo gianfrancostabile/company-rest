@@ -1,6 +1,6 @@
 package com.gfstabile.java.companyrest.controller.impl;
 
-import com.gfstabile.java.companyrest.controller.IController;
+import com.gfstabile.java.companyrest.controller.ISimpleController;
 import com.gfstabile.java.companyrest.entity.category.Category;
 import com.gfstabile.java.companyrest.entity.category.CategoryDTO;
 import com.gfstabile.java.companyrest.exception.AbstractServiceException;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/category")
-public class CategoryController implements IController<CategoryDTO> {
+public class CategoryController implements ISimpleController<CategoryDTO> {
 
     @Autowired
     private CategoryService categoryService;

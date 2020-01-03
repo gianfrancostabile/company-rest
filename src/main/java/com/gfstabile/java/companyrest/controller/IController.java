@@ -18,10 +18,11 @@ import java.util.List;
  * Interface that defines the mandatory
  * methods for controller classes.
  *
- * @param <T> the dto class related to the entity
+ * @param <T> the request dto class related to the entity
+ * @param <R> the response dto class related to the entity
  * @author G. F. Stabile
  */
-public interface IController<T> {
+public interface IController<T, R> {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Void> save(@RequestBody @Valid T dto) throws AbstractServiceException;
 
@@ -33,8 +34,8 @@ public interface IController<T> {
         throws AbstractServiceException;
 
     @GetMapping(value = "/{internalCode}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<T> getByInternalCode(@PathVariable @NotBlank String internalCode);
+    ResponseEntity<R> getByInternalCode(@PathVariable @NotBlank String internalCode);
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<T>> getAll();
+    ResponseEntity<List<R>> getAll();
 }
