@@ -72,11 +72,11 @@ public class CompanyResponseDTOTest {
     }
 
     @Test
-    public void toString_ReturnsStringRepresentationOfAllFieldWithTheirValuesButCategoryInternalCodeNull_CategoryInternalCodeNull() {
+    public void toString_ReturnsStringRepresentationOfAllFieldWithTheirValuesButCategoryDTONull_CategoryDTONull() {
         this.dummyCompanyResponseDTO.setCategoryDTO(null);
         assertEquals("{\"internalCode\": \"1\", \"name\": \"Name\", \"country\": \"AR\", \"category\": null}",
             this.dummyCompanyResponseDTO.toString(),
-            "toString_ReturnsStringRepresentationOfAllFieldWithTheirValuesButCategoryInternalCodeNull_CategoryInternalCodeNull");
+            "toString_ReturnsStringRepresentationOfAllFieldWithTheirValuesButCategoryDTONull_CategoryDTONull");
     }
 
     protected class CategoryDTOFieldsValuesChanger extends AbstractFieldValueChanger<CategoryDTO> {

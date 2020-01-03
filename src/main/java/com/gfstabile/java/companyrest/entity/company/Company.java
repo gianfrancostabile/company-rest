@@ -58,7 +58,7 @@ public class Company implements Serializable {
     @Column(nullable = false)
     private Country country;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "category_id")
     private Category category;
 
